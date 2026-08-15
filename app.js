@@ -22,7 +22,7 @@ const rng = createSeededRng(Date.now());
 
 let state = loadState();
 let showHelp = false;
-let listView = false;
+let guideView = false;
 let selectedStrategy = null;
 let pitchDrafts = {};
 let movementTimer = null;
@@ -39,8 +39,8 @@ const SPACE_ICONS = {
 };
 
 const BOARD_MODE_HINTS = {
-  compact: 'Path view',
-  expanded: 'Guide view',
+  compact: 'Current mode: Path view',
+  expanded: 'Current mode: Guide view',
 };
 
 function loadState() {
@@ -137,7 +137,7 @@ function renderBadge(level) {
 }
 
 function renderBoard() {
-  const modeClass = listView ? 'board-grid--expanded' : 'board-grid--compact';
+  const modeClass = guideView ? 'board-grid--expanded' : 'board-grid--compact';
   const spaces = BOARD_SPACES.map((space) => {
    const isCurrent = space.id === state.currentSpace;
    const isVisited = state.completedSpaces.includes(space.id);
@@ -147,7 +147,7 @@ function renderBoard() {
      <span class="board-space__icon" aria-hidden="true">${icon}</span>
      <strong class="board-space__title">${escapeHtml(space.title)}</strong>
      <span class="board-space__meta">${escapeHtml(space.zone)} · ${escapeHtml(space.type)}</span>
-     ${listView ? `<span class="board-space__content">${escapeHtml(space.content)}</span>` : `<span class="sr-only">${escapeHtml(space.content)}</span>`}
+     ${guideView ? `<span class="board-space__content">${escapeHtml(space.content)}</span>` : ''}
    </li>`;
   }).join('');
 
@@ -424,11 +424,11 @@ function renderPlaying() {
         <h2>Space ${state.currentSpace} / ${state.totalSpaces}</h2>
         <p>Seed: <strong>${escapeHtml(currentProject?.name ?? '')}</strong></p>
       </div>
-      <button class="btn btn-secondary" data-action="toggle-list-view">${listView ? '🗺️ Path' : '📋 Guide'}</button>
+      <button class="btn btn-secondary" data-action="toggle-guide-view">${guideView ? '🗺️ Switch to Path' : '📋 Switch to Guide'}</button>
     </div>
-    <div class="board-shell ${listView ? 'is-expanded' : 'is-compact'}">
+    <div class="board-shell ${guideView ? 'is-expanded' : 'is-compact'}">
       <div class="board-shell__legend">
-        <span>${BOARD_MODE_HINTS[listView ? 'expanded' : 'compact']}</span>
+        <span>${BOARD_MODE_HINTS[guideView ? 'expanded' : 'compact']}</span>
         <span>${state.reducedMotion ? '⚡ Reduced motion' : '🎬 Motion on'}</span>
       </div>
       ${renderBoard()}
@@ -541,7 +541,7 @@ function onClick(event) {
     clearSavedGame();
     selectedStrategy = null;
     pitchDrafts = {};
-    listView = false;
+    guideView = false;
     showHelp = false;
     state = createInitialState(Date.now());
     saveState();
@@ -561,8 +561,8 @@ function onClick(event) {
     return;
   }
 
-  if (action === 'toggle-list-view') {
-    listView = !listView;
+  if (action === 'toggle-guide-view') {
+    guideView = !guideView;
     render();
     return;
   }

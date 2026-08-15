@@ -133,7 +133,6 @@
   box-shadow: var(--shadow);
   transform: translateY(var(--board-drift)) rotate(var(--board-tilt));
   transform-origin: center;
-  animation: boardGlow 6s ease-in-out infinite;
 }
 
 .board-grid--expanded .board-space {
@@ -160,7 +159,7 @@
 
 .board-space.is-current {
   outline: 3px solid var(--color-moss);
-  animation: boardPulse 1.8s ease-in-out infinite;
+  animation: boardPulse 1.8s ease-in-out infinite, boardGlow 6s ease-in-out infinite;
 }
 
 .board-space.is-visited {
@@ -197,38 +196,6 @@
 
 .board-space--reflection {
   background: color-mix(in srgb, var(--type-reflection) 72%, white);
-}
-
-.board-space--decision {
-  background: var(--type-decision);
-}
-
-.board-space--path {
-  background: var(--type-path);
-}
-
-.board-space--soil-test {
-  background: var(--type-soil-test);
-}
-
-.board-space--trellis {
-  background: var(--type-trellis);
-}
-
-.board-space--root {
-  background: var(--type-root);
-}
-
-.board-space--garden-guide {
-  background: var(--type-garden-guide);
-}
-
-.board-space--wild-bloom {
-  background: var(--type-wild-bloom);
-}
-
-.board-space--reflection {
-  background: var(--type-reflection);
 }
 
 .button-stack,
@@ -326,6 +293,13 @@
   font-size: 3rem;
   letter-spacing: 0.3em;
   animation: boardFloat 5.5s ease-in-out infinite;
+}
+
+.reduced-motion .board-space,
+.reduced-motion .welcome-art,
+.reduced-motion .board-space.is-current {
+  animation: none !important;
+  transform: none !important;
 }
 
 .welcome-quote {
@@ -442,5 +416,14 @@
 @media (max-width: 640px) {
   .section-heading {
     flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-space,
+  .welcome-art,
+  .board-space.is-current {
+    animation: none !important;
+    transform: none !important;
   }
 }

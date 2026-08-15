@@ -44,9 +44,12 @@ describe('vanilla game module', () => {
   });
 
   it('creates a serpentine board path', () => {
-    expect(getBoardPlacement(1)).toMatchObject({ row: 0, column: 0 });
-    expect(getBoardPlacement(5)).toMatchObject({ row: 0, column: 4 });
-    expect(getBoardPlacement(6)).toMatchObject({ row: 1, column: 4 });
+    expect(() => getBoardPlacement(-3)).toThrow(RangeError);
+    expect(getBoardPlacement(1)).toMatchObject({ row: 0, column: 0, tilt: '-5deg' });
+    expect(getBoardPlacement(5)).toMatchObject({ row: 0, column: 4, drift: 0.7 });
+    expect(getBoardPlacement(6)).toMatchObject({ row: 1, column: 4, tilt: '5deg' });
+    expect(getBoardPlacement(30)).toMatchObject({ row: 5, column: 0 });
+    expect(() => getBoardPlacement(31)).toThrow(RangeError);
   });
 
   it('toggles the simulated Artizen account bridge', () => {

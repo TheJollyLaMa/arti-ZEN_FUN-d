@@ -266,11 +266,14 @@ export const BOARD_SPACES = [
 const BOARD_COLUMNS = 5;
 
 export function getBoardPlacement(spaceId) {
-  const index = Math.max(1, Math.min(RULES.totalSpaces, spaceId)) - 1;
+  if (spaceId < 1 || spaceId > RULES.totalSpaces) {
+    throw new RangeError(`spaceId must be between 1 and ${RULES.totalSpaces}`);
+  }
+  const index = spaceId - 1;
   const row = Math.floor(index / BOARD_COLUMNS);
   const columnInRow = index % BOARD_COLUMNS;
   const column = row % 2 === 0 ? columnInRow : BOARD_COLUMNS - 1 - columnInRow;
-  const drift = ((columnInRow - 2) * 0.45 + (row % 2 === 0 ? -0.2 : 0.2)).toFixed(2);
+  const drift = Math.round(((column - 2) * 0.45 + (row % 2 === 0 ? -0.2 : 0.2)) * 100) / 100;
   const tilt = (row % 2 === 0 ? columnInRow - 2 : 2 - columnInRow) * 2.5;
   return {
     column,
