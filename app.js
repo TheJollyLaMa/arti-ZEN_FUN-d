@@ -26,6 +26,8 @@ let guideView = false;
 let selectedStrategy = null;
 let pitchDrafts = {};
 let movementTimer = null;
+let boardZoomMode = 'follow';
+let boardPan = { x: 0, y: 0 };
 
 const SPACE_ICONS = {
   path: '🌀',
@@ -39,9 +41,50 @@ const SPACE_ICONS = {
 };
 
 const BOARD_MODE_HINTS = {
-  compact: 'Current mode: Path view',
-  expanded: 'Current mode: Guide view',
+  overview: 'Zoomed out to see the full garden path',
+  follow: 'Centered on your current place',
+  close: 'Close-up view with pan controls',
 };
+
+const BOARD_SCENE_WIDTH = 1440;
+const BOARD_SCENE_HEIGHT = 960;
+const BOARD_SCENE_CENTER = {
+  x: BOARD_SCENE_WIDTH / 2,
+  y: BOARD_SCENE_HEIGHT / 2,
+};
+
+const BOARD_ROUTE_POINTS = [
+  { x: 14, y: 82 },
+  { x: 18, y: 72 },
+  { x: 27, y: 62 },
+  { x: 40, y: 58 },
+  { x: 54, y: 64 },
+  { x: 66, y: 74 },
+  { x: 79, y: 78 },
+  { x: 88, y: 67 },
+  { x: 84, y: 53 },
+  { x: 74, y: 44 },
+  { x: 61, y: 39 },
+  { x: 49, y: 32 },
+  { x: 36, y: 25 },
+  { x: 22, y: 27 },
+  { x: 14, y: 38 },
+  { x: 17, y: 50 },
+  { x: 27, y: 56 },
+  { x: 39, y: 48 },
+  { x: 52, y: 41 },
+  { x: 64, y: 29 },
+  { x: 78, y: 23 },
+  { x: 87, y: 30 },
+  { x: 90, y: 43 },
+  { x: 83, y: 57 },
+  { x: 72, y: 65 },
+  { x: 60, y: 71 },
+  { x: 48, y: 79 },
+  { x: 36, y: 86 },
+  { x: 24, y: 79 },
+  { x: 17, y: 68 },
+];
 
 function loadState() {
   try {
@@ -84,6 +127,89 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function buildRoutePath(points) {
+  if (points.length === 0) return '';
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i += 1) {
+    const previous = points[i - 1];
+    const current = points[i];
+    const midX = (previous.x + current.x) / 2;
+    const midY = (previous.y + current.y) / 2;
+    path += ` Q ${previous.x} ${previous.y} ${midX} ${midY}`;
+  }
+  const last = points[points.length - 1];
+  path += ` T ${last.x} ${last.y}`;
+  return path;
+}
+
+function getBoardViewConfig() {
+  switch (boardZoomMode) {
+    case 'overview':
+      return { scale: 0.62, label: 'Overview', panEnabled: false };
+    case 'close':
+      return { scale: 1.25, label: 'Close-up', panEnabled: true };
+    default:
+      return { scale: 0.92, label: 'Follow path', panEnabled: false };
+  }
+}
+
+function getGardenPlacement(spaceId) {
+  const placement = getBoardPlacement(spaceId);
+  const routePoint = BOARD_ROUTE_POINTS[spaceId - 1] ?? BOARD_ROUTE_POINTS[0];
+  const wobble = spaceId % 2 === 0 ? -1 : 1;
+  return {
+    x: routePoint.x,
+    y: routePoint.y,
+    scale: spaceId % 3 === 0 ? 1.04 : spaceId % 5 === 0 ? 0.98 : 1,
+    tilt: `${(Number.parseFloat(placement.tilt) / 2) * wobble}deg`,
+  };
+}
+
+function getBoardFocus() {
+  const view = getBoardViewConfig();
+  if (boardZoomMode === 'overview') {
+    return { x: BOARD_SCENE_CENTER.x, y: BOARD_SCENE_CENTER.y, scale: view.scale };
+  }
+
+  const placement = getGardenPlacement(Math.max(state.currentSpace, 1));
+  return {
+    x: clamp(
+      (placement.x / 100) * BOARD_SCENE_WIDTH + boardPan.x,
+      140,
+      BOARD_SCENE_WIDTH - 140,
+    ),
+    y: clamp(
+      (placement.y / 100) * BOARD_SCENE_HEIGHT + boardPan.y,
+      140,
+      BOARD_SCENE_HEIGHT - 140,
+    ),
+    scale: view.scale,
+  };
+}
+
+function syncBoardViewport() {
+  const viewport = root.querySelector('.board-view__viewport');
+  const scene = root.querySelector('.board-view__scene');
+  if (!viewport || !scene) return;
+
+  const focus = getBoardFocus();
+  scene.style.setProperty('--board-scale', String(focus.scale));
+
+  const schedule = window.requestAnimationFrame ?? ((callback) => window.setTimeout(callback, 0));
+  schedule(() => {
+    const scaledWidth = BOARD_SCENE_WIDTH * focus.scale;
+    const scaledHeight = BOARD_SCENE_HEIGHT * focus.scale;
+    viewport.scrollLeft = Math.max(0, scaledWidth * (focus.x / BOARD_SCENE_WIDTH) - viewport.clientWidth / 2);
+    viewport.scrollTop = Math.max(0, scaledHeight * (focus.y / BOARD_SCENE_HEIGHT) - viewport.clientHeight / 2);
+  });
 }
 
 function getProject() {
@@ -137,13 +263,15 @@ function renderBadge(level) {
 }
 
 function renderBoard() {
-  const modeClass = guideView ? 'board-grid--expanded' : 'board-grid--compact';
+  const routePath = buildRoutePath(BOARD_ROUTE_POINTS);
+  const currentPlacement = getGardenPlacement(Math.max(state.currentSpace, 1));
+  const view = getBoardViewConfig();
   const spaces = BOARD_SPACES.map((space) => {
    const isCurrent = space.id === state.currentSpace;
    const isVisited = state.completedSpaces.includes(space.id);
-   const placement = getBoardPlacement(space.id);
+   const placement = getGardenPlacement(space.id);
    const icon = SPACE_ICONS[space.type] ?? '🌿';
-   return `<li class="board-space board-space--${space.type} ${isCurrent ? 'is-current' : ''} ${isVisited ? 'is-visited' : ''}" style="--board-column:${placement.column}; --board-row:${placement.row}; --board-drift:${placement.drift}rem; --board-tilt:${placement.tilt};">
+   return `<li class="board-space board-space--${space.type} ${isCurrent ? 'is-current' : ''} ${isVisited ? 'is-visited' : ''}" style="--board-left:${placement.x}%; --board-top:${placement.y}%; --board-tilt:${placement.tilt}; --board-scale:${placement.scale};">
      <span class="board-space__icon" aria-hidden="true">${icon}</span>
      <strong class="board-space__title">${escapeHtml(space.title)}</strong>
      <span class="board-space__meta">${escapeHtml(space.zone)} · ${escapeHtml(space.type)}</span>
@@ -151,7 +279,43 @@ function renderBoard() {
    </li>`;
   }).join('');
 
-  return `<ol class="board-grid ${modeClass}" aria-label="Board path">${spaces}</ol>`;
+  return `
+   <div class="board-view">
+     <div class="board-view__toolbar row">
+       <button class="btn btn-secondary" data-action="board-zoom-out">− Zoom</button>
+       <button class="btn btn-secondary" data-action="board-center">Center current</button>
+       <button class="btn btn-secondary" data-action="board-zoom-in">＋ Zoom</button>
+       <button class="btn btn-secondary" data-action="toggle-list-view">${guideView ? '🗺️ Hide notes' : '📖 Show notes'}</button>
+       <div class="board-view__nav" aria-label="Camera navigation">
+         <button class="btn btn-secondary" data-action="board-pan" data-direction="up" ${view.panEnabled ? '' : 'disabled'} aria-label="Pan up">↑</button>
+         <div class="board-view__nav-row">
+           <button class="btn btn-secondary" data-action="board-pan" data-direction="left" ${view.panEnabled ? '' : 'disabled'} aria-label="Pan left">←</button>
+           <button class="btn btn-secondary" data-action="board-pan" data-direction="right" ${view.panEnabled ? '' : 'disabled'} aria-label="Pan right">→</button>
+         </div>
+         <button class="btn btn-secondary" data-action="board-pan" data-direction="down" ${view.panEnabled ? '' : 'disabled'} aria-label="Pan down">↓</button>
+       </div>
+     </div>
+     <div class="board-view__legend">
+       <span>${BOARD_MODE_HINTS[boardZoomMode]}</span>
+       <span>${view.panEnabled ? 'Use the arrows to look around the garden.' : 'Use zoom to switch to close-up navigation.'}</span>
+     </div>
+     <div class="board-view__viewport" aria-label="Garden board">
+       <div class="board-view__scene" style="--board-scale:${view.scale};">
+         <svg class="board-view__route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+           <path class="board-view__route-shadow" d="${routePath}" />
+           <path class="board-view__route-dirt" d="${routePath}" />
+           <path class="board-view__route-brick" d="${routePath}" />
+         </svg>
+         <div class="board-view__environment board-view__environment--sun"></div>
+         <div class="board-view__environment board-view__environment--canopy"></div>
+         <ol class="board-grid board-grid--garden" aria-label="Board path">${spaces}</ol>
+         <div class="board-token" aria-label="Current place" style="--board-left:${currentPlacement.x}%; --board-top:${currentPlacement.y}%;">
+           <span class="board-token__emoji" aria-hidden="true">🌿</span>
+           <span class="board-token__label">You are here</span>
+         </div>
+       </div>
+     </div>
+   </div>`;
 }
 
 function renderAccountBridge() {
@@ -315,6 +479,7 @@ function renderPitchBuilder() {
 }
 
 function renderCuration() {
+  const curatedFunds = state.curationResults.filter((result) => result.outcome === 'curated');
   return `<section class="stack">
     <h2>Simulated Curation Results 🌸</h2>
     <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>Simulated for learning only — not real Director decisions.</span></div>
@@ -326,7 +491,11 @@ function renderCuration() {
         <p>${escapeHtml(result.explanation)}</p>
       </article>`;
     }).join('')}
-    <button class="btn btn-primary" data-action="go-fund-drive">Enter the Fund Drive →</button>
+    ${curatedFunds.length === 0 ? `<div class="card curation-result curation-result--not-eligible">
+      <h3>Do not pass go</h3>
+      <p>No Funds were curated this round, so the story loops back to the starting spot.</p>
+      <button class="btn btn-primary" data-action="play-again">Back to the Beginning</button>
+    </div>` : '<button class="btn btn-primary" data-action="go-fund-drive">Enter the Fund Drive →</button>'}
   </section>`;
 }
 
@@ -346,8 +515,11 @@ function renderFundDrive() {
   if (curatedFunds.length === 0) {
     return `<section class="stack">
       <h2>Fund Drive Simulation 🌻</h2>
-      <div class="card"><p>No Funds were curated this round. That still teaches you something valuable: fit matters.</p></div>
-      <button class="btn btn-primary" data-action="go-garden-plan">View My Garden Plan 🌾</button>
+      <div class="card">
+        <p>No Funds were curated this round. Do not pass go, do not collect $200.</p>
+        <p>You can head back to the start and try a stronger fit.</p>
+        <button class="btn btn-primary" data-action="play-again">Back to the Beginning</button>
+      </div>
     </section>`;
   }
 
@@ -424,13 +596,8 @@ function renderPlaying() {
         <h2>Space ${state.currentSpace} / ${state.totalSpaces}</h2>
         <p>Seed: <strong>${escapeHtml(currentProject?.name ?? '')}</strong></p>
       </div>
-      <button class="btn btn-secondary" data-action="toggle-list-view">${guideView ? '🗺️ Switch to Path' : '📋 Switch to Guide'}</button>
     </div>
     <div class="board-shell ${guideView ? 'is-expanded' : 'is-compact'}">
-      <div class="board-shell__legend">
-        <span>${BOARD_MODE_HINTS[guideView ? 'expanded' : 'compact']}</span>
-        <span>${state.reducedMotion ? '⚡ Reduced motion' : '🎬 Motion on'}</span>
-      </div>
       ${renderBoard()}
     </div>
     ${renderEncounter()}
@@ -504,6 +671,7 @@ function render() {
 
   root.className = reduced;
   root.innerHTML = `${header}${showHelp ? renderHelp() : ''}${main}<footer class="app-footer"><div class="container"><p>The Match Garden — an independent educational game. Not affiliated with Artizen. <a href="${RULES.officialLinks.funds}" target="_blank" rel="noopener noreferrer">Visit artizen.fund ↗</a></p><p class="app-footer__disclaimer">${escapeHtml(RULES.disclaimer)}</p></div></footer>`;
+  syncBoardViewport();
 }
 
 function onClick(event) {
@@ -513,6 +681,39 @@ function onClick(event) {
 
   if (action === 'toggle-help') {
     showHelp = !showHelp;
+    render();
+    return;
+  }
+
+  if (action === 'board-zoom-in') {
+    boardZoomMode = boardZoomMode === 'overview' ? 'follow' : 'close';
+    boardPan = boardZoomMode === 'close' ? boardPan : { x: 0, y: 0 };
+    render();
+    return;
+  }
+
+  if (action === 'board-zoom-out') {
+    boardZoomMode = boardZoomMode === 'close' ? 'follow' : 'overview';
+    boardPan = boardZoomMode === 'close' ? boardPan : { x: 0, y: 0 };
+    render();
+    return;
+  }
+
+  if (action === 'board-center') {
+    boardZoomMode = 'follow';
+    boardPan = { x: 0, y: 0 };
+    render();
+    return;
+  }
+
+  if (action === 'board-pan') {
+    const direction = button.dataset.direction;
+    const step = 80;
+    boardZoomMode = 'close';
+    if (direction === 'left') boardPan = { ...boardPan, x: boardPan.x - step };
+    if (direction === 'right') boardPan = { ...boardPan, x: boardPan.x + step };
+    if (direction === 'up') boardPan = { ...boardPan, y: boardPan.y - step };
+    if (direction === 'down') boardPan = { ...boardPan, y: boardPan.y + step };
     render();
     return;
   }
@@ -528,6 +729,8 @@ function onClick(event) {
   }
 
   if (action === 'start-game') {
+    boardZoomMode = 'follow';
+    boardPan = { x: 0, y: 0 };
     dispatch({ type: 'START_GAME' });
     return;
   }
@@ -542,6 +745,8 @@ function onClick(event) {
     selectedStrategy = null;
     pitchDrafts = {};
     guideView = false;
+    boardZoomMode = 'follow';
+    boardPan = { x: 0, y: 0 };
     showHelp = false;
     state = createInitialState(Date.now());
     saveState();
@@ -552,6 +757,8 @@ function onClick(event) {
   if (action === 'select-project') {
     const projectId = button.dataset.projectId;
     if (!projectId) return;
+    boardZoomMode = 'follow';
+    boardPan = { x: 0, y: 0 };
     dispatch({ type: 'SELECT_PROJECT', projectId });
     const project = PROJECTS.find((item) => item.id === projectId);
     if (project) {

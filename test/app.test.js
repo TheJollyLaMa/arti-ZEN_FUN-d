@@ -24,11 +24,40 @@ describe('game shell interactions', () => {
 
     expect(document.body.textContent).toContain('Space 0 / 30');
     expect(document.querySelector('.board-shell')?.classList.contains('is-compact')).toBe(true);
+    expect(document.querySelector('.board-view__legend')?.textContent).toContain('Centered on your current place');
+
+    document.querySelector('[data-action="board-zoom-in"]')?.dispatchEvent(
+      new MouseEvent('click', { bubbles: true }),
+    );
+
+    expect(document.querySelector('.board-view__legend')?.textContent).toContain('Close-up view with pan controls');
 
     document.querySelector('[data-action="toggle-list-view"]')?.dispatchEvent(
       new MouseEvent('click', { bubbles: true }),
     );
 
     expect(document.querySelector('.board-shell')?.classList.contains('is-expanded')).toBe(true);
+  });
+
+  it('offers a back-to-the-beginning reset when no Funds are curated', async () => {
+    window.localStorage.setItem(
+      'match-garden-state-v1',
+      JSON.stringify({
+        phase: 'curation',
+        curationResults: [
+          { fundId: 'community-spaces', outcome: 'not-eligible', explanation: 'No match.' },
+        ],
+      }),
+    );
+
+    await import('../app.js');
+
+    expect(document.body.textContent).toContain('Do not pass go');
+
+    document.querySelector('[data-action="play-again"]')?.dispatchEvent(
+      new MouseEvent('click', { bubbles: true }),
+    );
+
+    expect(document.body.textContent).toContain('Welcome to The Match Garden');
   });
 });
