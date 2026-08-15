@@ -263,6 +263,23 @@ export const BOARD_SPACES = [
   { id: 30, type: 'reflection', zone: 'bloom', title: 'The Harvest Table', content: 'You\'ve reached the harvest table! Before receiving your Garden Plan, reflect: what is the most important thing you\'ve learned about finding the right Fund for your project?', reflectionKey: 'key-learning' },
 ];
 
+const BOARD_COLUMNS = 5;
+
+export function getBoardPlacement(spaceId) {
+  const index = Math.max(1, Math.min(RULES.totalSpaces, spaceId)) - 1;
+  const row = Math.floor(index / BOARD_COLUMNS);
+  const columnInRow = index % BOARD_COLUMNS;
+  const column = row % 2 === 0 ? columnInRow : BOARD_COLUMNS - 1 - columnInRow;
+  const drift = ((columnInRow - 2) * 0.45 + (row % 2 === 0 ? -0.2 : 0.2)).toFixed(2);
+  const tilt = (row % 2 === 0 ? columnInRow - 2 : 2 - columnInRow) * 2.5;
+  return {
+    column,
+    row,
+    drift,
+    tilt: `${tilt}deg`,
+  };
+}
+
 export const SCORE = {
   IDENTIFY_STRONG_FIT: 20,
   SKIP_UNSUITABLE_FUND: 10,
@@ -429,6 +446,7 @@ export function createInitialState(seedValue = Date.now()) {
     reflections: {},
     reducedMotion: false,
     soundEnabled: false,
+    artizenAccountLinked: false,
     seedValue,
     savedAt: null,
   };
@@ -611,6 +629,8 @@ export function gameReducer(state, action) {
       return { ...state, phase: 'complete' };
     case 'TOGGLE_REDUCED_MOTION':
       return { ...state, reducedMotion: !state.reducedMotion };
+    case 'TOGGLE_ARTIZEN_ACCOUNT':
+      return { ...state, artizenAccountLinked: !state.artizenAccountLinked };
     case 'TOGGLE_SOUND':
       return { ...state, soundEnabled: !state.soundEnabled };
     case 'RESET_GAME':

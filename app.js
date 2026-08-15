@@ -8,6 +8,7 @@ import {
   calculateAllFits,
   calculateMatchUnlocked,
   createInitialState,
+  getBoardPlacement,
   gameReducer,
   rollD6,
   scorePitch,
@@ -25,6 +26,22 @@ let listView = false;
 let selectedStrategy = null;
 let pitchDrafts = {};
 let movementTimer = null;
+
+const SPACE_ICONS = {
+  path: '🌀',
+  decision: '⚖️',
+  'soil-test': '🔎',
+  trellis: '🪜',
+  root: '🌱',
+  'garden-guide': '🧭',
+  'wild-bloom': '🌼',
+  reflection: '✍️',
+};
+
+const BOARD_MODE_HINTS = {
+  compact: 'Path view',
+  expanded: 'Guide view',
+};
 
 function loadState() {
   try {
@@ -120,16 +137,38 @@ function renderBadge(level) {
 }
 
 function renderBoard() {
+  const modeClass = listView ? 'board-grid--expanded' : 'board-grid--compact';
   const spaces = BOARD_SPACES.map((space) => {
-    const isCurrent = space.id === state.currentSpace;
-    const isVisited = state.completedSpaces.includes(space.id);
-    return `<li class="board-space board-space--${space.type} ${isCurrent ? 'is-current' : ''} ${isVisited ? 'is-visited' : ''}">
-      <strong>${space.id}. ${escapeHtml(space.title)}</strong>
-      <span>${escapeHtml(space.zone)} · ${escapeHtml(space.type)}</span>
-    </li>`;
+   const isCurrent = space.id === state.currentSpace;
+   const isVisited = state.completedSpaces.includes(space.id);
+   const placement = getBoardPlacement(space.id);
+   const icon = SPACE_ICONS[space.type] ?? '🌿';
+   return `<li class="board-space board-space--${space.type} ${isCurrent ? 'is-current' : ''} ${isVisited ? 'is-visited' : ''}" style="--board-column:${placement.column}; --board-row:${placement.row}; --board-drift:${placement.drift}rem; --board-tilt:${placement.tilt};">
+     <span class="board-space__icon" aria-hidden="true">${icon}</span>
+     <strong class="board-space__title">${escapeHtml(space.title)}</strong>
+     <span class="board-space__meta">${escapeHtml(space.zone)} · ${escapeHtml(space.type)}</span>
+     ${listView ? `<span class="board-space__content">${escapeHtml(space.content)}</span>` : `<span class="sr-only">${escapeHtml(space.content)}</span>`}
+   </li>`;
   }).join('');
 
-  return `<ol class="board-grid">${spaces}</ol>`;
+  return `<ol class="board-grid ${modeClass}" aria-label="Board path">${spaces}</ol>`;
+}
+
+function renderAccountBridge() {
+  return `<section class="card account-bridge ${state.artizenAccountLinked ? 'is-linked' : ''}">
+   <div class="row account-bridge__row">
+     <div>
+       <h2>Artizen account</h2>
+       <p>${state.artizenAccountLinked
+         ? 'Linked. Use your own project lane when you apply.'
+         : 'Connect to swap in your own project lane for future applications.'}</p>
+     </div>
+     <button class="btn btn-secondary" data-action="toggle-artizen-account">
+       ${state.artizenAccountLinked ? 'Disconnect' : 'Connect'}
+     </button>
+   </div>
+   <p class="account-bridge__hint">This demo keeps the connection symbolic, but the path is ready for your real projects.</p>
+  </section>`;
 }
 
 function renderEncounter() {
@@ -169,10 +208,12 @@ function renderEncounter() {
 function renderProjectPicker() {
   return `<section class="stack">
     <h2>Choose Your Project Seed</h2>
-    <p>Select one of the sample projects to begin the garden walk.</p>
+    <p>Select a seed or connect your Artizen account to keep the experience project-centric.</p>
+    ${renderAccountBridge()}
     <div class="project-grid">
       ${PROJECTS.map(
         (project) => `<article class="card project-card">
+          <div class="project-card__icon" aria-hidden="true">🌿</div>
           <h3>${escapeHtml(project.name)}</h3>
           <p>${escapeHtml(project.description)}</p>
           <p class="project-traits">${project.traits.map((trait) => `<span class="tag">${escapeHtml(trait)}</span>`).join('')}</p>
@@ -187,8 +228,8 @@ function renderFunds() {
   return `<section class="stack">
     <div class="section-heading">
       <div>
-        <h2>Evaluate the Garden Beds 🌻</h2>
-        <p>Select Funds that genuinely fit <strong>${escapeHtml(getProject()?.name ?? 'your project')}</strong>.</p>
+        <h2>Evaluate the garden beds 🌻</h2>
+        <p>Pick the Funds that really fit <strong>${escapeHtml(getProject()?.name ?? 'your project')}</strong>.</p>
       </div>
       <button class="btn btn-secondary" data-action="go-build-pitch">Build Applications →</button>
     </div>
@@ -198,8 +239,10 @@ function renderFunds() {
         const fit = state.fitResults.find((result) => result.fundId === fund.id);
         const selected = state.selectedFundIds.includes(fund.id);
         const skipped = state.skippedFundIds.includes(fund.id);
+        const fitIcon = fit?.level === 'strong' ? '✨' : fit?.level === 'possible' ? '🌿' : fit?.level === 'weak' ? '🪴' : '🌱';
         return `<article class="card fund-card ${selected ? 'is-selected' : ''} ${skipped ? 'is-skipped' : ''}">
           <div class="row fund-card__header">
+            <span class="fund-card__icon" aria-hidden="true">${fitIcon}</span>
             <h3>${escapeHtml(fund.name)}</h3>
             ${fit ? renderBadge(fit.level) : ''}
           </div>
@@ -381,9 +424,15 @@ function renderPlaying() {
         <h2>Space ${state.currentSpace} / ${state.totalSpaces}</h2>
         <p>Seed: <strong>${escapeHtml(currentProject?.name ?? '')}</strong></p>
       </div>
-      <button class="btn btn-secondary" data-action="toggle-list-view">${listView ? '🗺️ Board' : '📋 List'}</button>
+      <button class="btn btn-secondary" data-action="toggle-list-view">${listView ? '🗺️ Path' : '📋 Guide'}</button>
     </div>
-    ${listView ? renderBoard() : `<div class="card">${renderBoard()}</div>`}
+    <div class="board-shell ${listView ? 'is-expanded' : 'is-compact'}">
+      <div class="board-shell__legend">
+        <span>${BOARD_MODE_HINTS[listView ? 'expanded' : 'compact']}</span>
+        <span>${state.reducedMotion ? '⚡ Reduced motion' : '🎬 Motion on'}</span>
+      </div>
+      ${renderBoard()}
+    </div>
     ${renderEncounter()}
     ${!state.isMoving && !state.currentEncounter && state.currentSpace < RULES.totalSpaces
       ? `<div class="card center"><p>Roll the die to continue through the garden.</p><button class="btn btn-primary" data-action="roll-die">Roll the Die</button></div>`
@@ -401,8 +450,7 @@ function renderWelcome() {
       <h2 id="welcome-h">Welcome to The Match Garden</h2>
       <blockquote class="welcome-quote">
         <p>Your project is a seed.</p>
-        <p>Artizen Funds are garden beds cultivated around different missions. Your goal is not to plant your seed everywhere. Your goal is to discover where it can genuinely grow.</p>
-        <p>Find the right soil, make your case, get curated, and help your community unlock the sunlight waiting for your project.</p>
+        <p>Funds are beds with different soil. Find the right fit, then help your community unlock the light waiting for your project.</p>
       </blockquote>
       <div class="welcome-actions row">
         <button class="btn btn-primary" data-action="start-game">🌱 Plant My Seed</button>
@@ -419,7 +467,7 @@ function renderHelp() {
       <h2>How to Play</h2>
       <ol>
         <li>Choose a sample project — your seed.</li>
-        <li>Roll and move along 30 spaces.</li>
+        <li>Roll and move along 30 living spaces.</li>
         <li>Encounter decisions, soil tests, trellises, and roots.</li>
         <li>Evaluate sample Funds.</li>
         <li>Build practice pitches.</li>
@@ -471,6 +519,11 @@ function onClick(event) {
 
   if (action === 'toggle-motion') {
     dispatch({ type: 'TOGGLE_REDUCED_MOTION' });
+    return;
+  }
+
+  if (action === 'toggle-artizen-account') {
+    dispatch({ type: 'TOGGLE_ARTIZEN_ACCOUNT' });
     return;
   }
 

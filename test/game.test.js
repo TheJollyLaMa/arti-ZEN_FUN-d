@@ -3,6 +3,7 @@ import {
   createInitialState,
   calculateFit,
   calculateMatchUnlocked,
+  getBoardPlacement,
   gameReducer,
   PROJECTS,
   FUNDS,
@@ -40,6 +41,17 @@ describe('vanilla game module', () => {
   it('moves to choose-project on START_GAME', () => {
     const next = gameReducer(createInitialState(), { type: 'START_GAME' });
     expect(next.phase).toBe('choose-project');
+  });
+
+  it('creates a serpentine board path', () => {
+    expect(getBoardPlacement(1)).toMatchObject({ row: 0, column: 0 });
+    expect(getBoardPlacement(5)).toMatchObject({ row: 0, column: 4 });
+    expect(getBoardPlacement(6)).toMatchObject({ row: 1, column: 4 });
+  });
+
+  it('toggles the simulated Artizen account bridge', () => {
+    const next = gameReducer(createInitialState(), { type: 'TOGGLE_ARTIZEN_ACCOUNT' });
+    expect(next.artizenAccountLinked).toBe(true);
   });
 
   it('uses the fund id when seeding curation', () => {
