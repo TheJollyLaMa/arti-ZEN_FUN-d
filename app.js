@@ -686,17 +686,15 @@ function onClick(event) {
   }
 
   if (action === 'board-zoom-in') {
-    const nextMode = boardZoomMode === 'overview' ? 'follow' : 'close';
-    boardZoomMode = nextMode;
-    boardPan = nextMode === 'close' ? boardPan : { x: 0, y: 0 };
+    boardZoomMode = boardZoomMode === 'overview' ? 'follow' : 'close';
+    boardPan = boardZoomMode === 'close' ? boardPan : { x: 0, y: 0 };
     render();
     return;
   }
 
   if (action === 'board-zoom-out') {
-    const nextMode = boardZoomMode === 'close' ? 'follow' : 'overview';
-    boardZoomMode = nextMode;
-    boardPan = nextMode === 'close' ? boardPan : { x: 0, y: 0 };
+    boardZoomMode = boardZoomMode === 'close' ? 'follow' : 'overview';
+    boardPan = boardZoomMode === 'close' ? boardPan : { x: 0, y: 0 };
     render();
     return;
   }
