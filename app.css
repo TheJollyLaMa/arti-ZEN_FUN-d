@@ -18,6 +18,32 @@
   flex-wrap: wrap;
 }
 
+.board-shell {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--color-light-border);
+  border-radius: calc(var(--radius) * 1.3);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(106, 191, 105, 0.12), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(243, 239, 229, 0.96));
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+
+.board-shell.is-expanded {
+  padding: 1rem;
+}
+
+.board-shell__legend {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  color: var(--color-mid);
+}
+
 .project-grid,
 .funds-grid {
   display: grid;
@@ -32,6 +58,24 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+}
+
+.project-card,
+.fund-card,
+.encounter-card,
+.curation-result,
+.account-bridge {
+  transition: transform var(--transition), box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.project-card:hover,
+.fund-card:hover,
+.encounter-card:hover,
+.curation-result:hover,
+.account-bridge:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .project-traits,
@@ -51,61 +95,107 @@
 
 .board-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(5.5rem, auto));
   gap: 0.5rem;
   list-style: none;
-  padding: 0;
+  padding: 0.2rem 0;
+  min-height: 36rem;
+  position: relative;
+}
+
+.board-grid::before {
+  content: '';
+  position: absolute;
+  inset: 1.4rem 0.2rem 0.4rem;
+  background:
+    radial-gradient(circle at 10% 12%, rgba(255, 255, 255, 0.9), transparent 22%),
+    linear-gradient(135deg, transparent 0 18%, rgba(74, 124, 89, 0.11) 18% 19%, transparent 19% 38%, rgba(74, 124, 89, 0.11) 38% 39%, transparent 39% 58%, rgba(74, 124, 89, 0.11) 58% 59%, transparent 59% 78%, rgba(74, 124, 89, 0.11) 78% 79%, transparent 79% 100%);
+  opacity: 0.7;
+  pointer-events: none;
+  border-radius: 1.2rem;
 }
 
 .board-space {
-  background: var(--color-white);
-  border: 1px solid var(--color-light-border);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem;
+  grid-column: calc(var(--board-column) + 1);
+  grid-row: calc(var(--board-row) + 1);
+  z-index: 1;
+  background: color-mix(in srgb, var(--color-white) 88%, var(--color-sky) 12%);
+  border: 1px solid rgba(212, 201, 176, 0.95);
+  border-radius: 999px;
+  padding: 0.85rem 0.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  min-height: 90px;
+  gap: 0.2rem;
+  min-height: 5.5rem;
+  align-items: flex-start;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transform: translateY(var(--board-drift)) rotate(var(--board-tilt));
+  transform-origin: center;
+}
+
+.board-grid--expanded .board-space {
+  border-radius: 1rem 1.5rem 1.3rem 1.8rem;
+}
+
+.board-grid--compact .board-space__content {
+  display: none;
+}
+
+.board-space__icon {
+  font-size: 1.2rem;
+}
+
+.board-space__title {
+  font-size: 0.95rem;
+}
+
+.board-space__meta,
+.board-space__content {
+  font-size: 0.78rem;
+  color: var(--color-mid);
 }
 
 .board-space.is-current {
   outline: 3px solid var(--color-moss);
+  animation: boardPulse 1.8s ease-in-out infinite, boardGlow 6s ease-in-out infinite;
 }
 
 .board-space.is-visited {
-  opacity: 0.86;
+  opacity: 0.92;
 }
 
 .board-space--decision {
-  background: var(--type-decision);
+  background: color-mix(in srgb, var(--type-decision) 70%, white);
 }
 
 .board-space--path {
-  background: var(--type-path);
+  background: color-mix(in srgb, var(--type-path) 72%, white);
 }
 
 .board-space--soil-test {
-  background: var(--type-soil-test);
+  background: color-mix(in srgb, var(--type-soil-test) 68%, white);
 }
 
 .board-space--trellis {
-  background: var(--type-trellis);
+  background: color-mix(in srgb, var(--type-trellis) 68%, white);
 }
 
 .board-space--root {
-  background: var(--type-root);
+  background: color-mix(in srgb, var(--type-root) 68%, white);
 }
 
 .board-space--garden-guide {
-  background: var(--type-garden-guide);
+  background: color-mix(in srgb, var(--type-garden-guide) 72%, white);
 }
 
 .board-space--wild-bloom {
-  background: var(--type-wild-bloom);
+  background: color-mix(in srgb, var(--type-wild-bloom) 74%, white);
 }
 
 .board-space--reflection {
-  background: var(--type-reflection);
+  background: color-mix(in srgb, var(--type-reflection) 72%, white);
 }
 
 .button-stack,
@@ -202,6 +292,14 @@
 .welcome-art {
   font-size: 3rem;
   letter-spacing: 0.3em;
+  animation: boardFloat 5.5s ease-in-out infinite;
+}
+
+.reduced-motion .board-space,
+.reduced-motion .welcome-art,
+.reduced-motion .board-space.is-current {
+  animation: none !important;
+  transform: none !important;
 }
 
 .welcome-quote {
@@ -240,6 +338,36 @@
   padding-bottom: 3rem;
 }
 
+.project-card__icon,
+.fund-card__icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--zone-plant);
+  font-size: 1rem;
+}
+
+.account-bridge {
+  background: linear-gradient(135deg, rgba(227, 242, 253, 0.82), rgba(232, 245, 233, 0.95));
+}
+
+.account-bridge.is-linked {
+  border-color: var(--color-moss);
+}
+
+.account-bridge__row {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-bridge__hint {
+  font-size: 0.9rem;
+  color: var(--color-mid);
+}
+
 .fund-drive-results,
 .card {
   display: flex;
@@ -263,8 +391,39 @@
   background: #fff3f1;
 }
 
+@keyframes boardGlow {
+  0%,
+  100% {
+    filter: saturate(1);
+  }
+
+  50% {
+    filter: saturate(1.08);
+  }
+}
+
+@keyframes boardPulse {
+  0%,
+  100% {
+    box-shadow: var(--shadow);
+  }
+
+  50% {
+    box-shadow: 0 0 0 0.45rem rgba(74, 124, 89, 0.14), var(--shadow-lg);
+  }
+}
+
 @media (max-width: 640px) {
   .section-heading {
     flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-space,
+  .welcome-art,
+  .board-space.is-current {
+    animation: none !important;
+    transform: none !important;
   }
 }
