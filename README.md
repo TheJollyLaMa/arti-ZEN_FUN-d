@@ -56,12 +56,13 @@ You can also open `index.html` directly or deploy the repo root to GitHub Pages.
 ## Project Structure
 
 ```text
-app.js               — Vanilla JS game shell and state/render loop
-game.js              — Data, rules, reducers, and scoring helpers
-app.css              — Page-specific styles
-index.html           — Static GitHub Pages entry point
-src/styles/global.css — Shared base styles
-src/test/            — Vitest coverage (logic smoke tests + legacy checks)
+app.js         — Vanilla JS game shell and state/render loop
+game.js        — Data, rules, reducers, and scoring helpers
+app.css        — Page-specific styles
+global.css     — Shared base styles
+favicon.svg    — Site icon
+index.html    — Static entry point
+test/         — Vitest coverage for game logic
 ```
 
 ---
@@ -78,12 +79,12 @@ Edit `game.js`. Add a new object to the `PROJECTS` array:
   traits: [
     'community-building',
     'arts-culture',
-    // … match trait IDs used in funds.ts preferredTraits
+    // … match trait IDs used in fund preferredTraits
   ],
 }
 ```
 
-The trait IDs must be lowercase hyphenated strings. Use the same IDs that appear in Fund `preferredTraits` for proper fit matching.
+The trait IDs must be lowercase hyphenated strings. Use the same IDs that appear in each Fund's `preferredTraits` for proper fit matching.
 
 ---
 
