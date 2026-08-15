@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   createInitialState,
-  calculateMatchUnlocked,
   calculateFit,
+  calculateMatchUnlocked,
   gameReducer,
   PROJECTS,
   FUNDS,
   scorePitch,
   PITCH_PHRASES,
   simulateCuration,
-} from '../../game.js';
+} from '../game.js';
 
 describe('vanilla game module', () => {
   it('starts in the welcome phase', () => {
