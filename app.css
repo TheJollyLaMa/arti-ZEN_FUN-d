@@ -1,0 +1,270 @@
+.app-header__row {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.help-panel {
+  background: var(--zone-cultivate);
+  border-bottom: 1px solid var(--color-light-border);
+  padding: 1rem 0;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.project-grid,
+.funds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.project-card,
+.fund-card,
+.encounter-card,
+.curation-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.project-traits,
+.fund-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--zone-explore);
+  font-size: 0.8rem;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.board-space {
+  background: var(--color-white);
+  border: 1px solid var(--color-light-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 90px;
+}
+
+.board-space.is-current {
+  outline: 3px solid var(--color-moss);
+}
+
+.board-space.is-visited {
+  opacity: 0.86;
+}
+
+.board-space--decision {
+  background: var(--type-decision);
+}
+
+.board-space--path {
+  background: var(--type-path);
+}
+
+.board-space--soil-test {
+  background: var(--type-soil-test);
+}
+
+.board-space--trellis {
+  background: var(--type-trellis);
+}
+
+.board-space--root {
+  background: var(--type-root);
+}
+
+.board-space--garden-guide {
+  background: var(--type-garden-guide);
+}
+
+.board-space--wild-bloom {
+  background: var(--type-wild-bloom);
+}
+
+.board-space--reflection {
+  background: var(--type-reflection);
+}
+
+.button-stack,
+.strategy-group,
+.pitch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.strategy {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-light-border);
+  background: var(--color-white);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.strategy.is-selected {
+  border-color: var(--color-moss);
+  box-shadow: var(--shadow);
+}
+
+.pitch-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pitch-field select,
+.reflection-input {
+  width: 100%;
+  border: 1px solid var(--color-light-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem;
+  font: inherit;
+  background: var(--color-white);
+}
+
+.fund-card.is-selected {
+  border-color: var(--color-moss);
+}
+
+.fund-card.is-skipped {
+  opacity: 0.7;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.stats div,
+.stats .stat {
+  background: var(--zone-plant);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem;
+}
+
+.stats dt {
+  font-size: 0.8rem;
+  color: var(--color-mid);
+}
+
+.stats dd {
+  margin-top: 0.2rem;
+  font-weight: 700;
+}
+
+.center {
+  text-align: center;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.welcome-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+}
+
+.welcome-art {
+  font-size: 3rem;
+  letter-spacing: 0.3em;
+}
+
+.welcome-quote {
+  border-left: 4px solid var(--color-moss);
+  padding: 0.8rem 1.2rem;
+  background: var(--zone-plant);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  text-align: left;
+  max-width: 60ch;
+}
+
+.welcome-quote p {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.welcome-quote p:last-child {
+  margin-bottom: 0;
+}
+
+.welcome-actions {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.welcome-saved {
+  font-size: 0.88rem;
+  color: var(--color-mid);
+  margin-top: 0.3rem;
+}
+
+.main-content {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+.fund-drive-results,
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.curation-result--curated {
+  background: #f2fff1;
+}
+
+.curation-result--needs-clarification {
+  background: #fff8e6;
+}
+
+.curation-result--eligible-not-selected {
+  background: #f2f7ff;
+}
+
+.curation-result--not-eligible {
+  background: #fff3f1;
+}
+
+@media (max-width: 640px) {
+  .section-heading {
+    flex-direction: column;
+  }
+}

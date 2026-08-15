@@ -43,62 +43,32 @@ By the end of the game, players will understand:
 
 ```bash
 npm install
-npm run dev        # start the development server (http://localhost:5173)
-npm run build      # production build
+npm run dev        # serve the static site (http://localhost:4173)
 npm test           # run all tests
 npm run test:watch # run tests in watch mode
 npm run lint       # run oxlint
-npm run preview    # preview the production build
 ```
+
+You can also open `index.html` directly or deploy the repo root to GitHub Pages.
 
 ---
 
 ## Project Structure
 
 ```text
-src/
-  data/
-    encounters.ts     — 30 board spaces (editable game content)
-    funds.ts          — 5 sample Funds (editable, all simulated)
-    pitchPhrases.ts   — Pitch Builder phrase cards
-    projects.ts       — 3 sample projects with traits
-    rules.ts          — Configurable rules, amounts, links (edit here!)
-  game/
-    fitEngine.ts      — Fund fit calculation (strong/possible/weak/ineligible)
-    gameReducer.ts    — Central state machine (all phases)
-    scoring.ts        — Growth Points, pitch quality, match math
-    seededRandom.ts   — Deterministic RNG for testable outcomes
-    types.ts          — TypeScript types shared across the game
-  components/
-    Board/            — Visual 30-space garden path + list-view alternative
-    Encounters/       — Space encounter UI + CurationSimulator
-    FundCard/         — Fund card with fit badge and actions
-    GardenGuide/      — Venus tip bubble
-    GardenPlan/       — Final summary with copy/print
-    MatchSimulator/   — Fund Drive simulation
-    PitchBuilder/     — Phrase-card pitch assembly
-    ProjectPicker/    — Project selection screen
-    Spinner/          — Animated garden die
-  hooks/
-    useGameState.ts   — Game state with localStorage persistence
-  styles/
-    global.css        — Garden colour palette, base styles, utilities
-  test/
-    setup.ts          — Vitest + Testing Library setup
-    curation.test.ts  — Seeded curation outcome tests
-    fitEngine.test.ts — Fund fit calculation tests
-    gameReducer.test.ts — State machine tests (movement, scoring, etc.)
-    scoring.test.ts   — Pitch quality and match calculation tests
-    seededRandom.test.ts — RNG determinism tests
-  App.tsx             — Main application shell
-  main.tsx            — React entry point
+app.js               — Vanilla JS game shell and state/render loop
+game.js              — Data, rules, reducers, and scoring helpers
+app.css              — Page-specific styles
+index.html           — Static GitHub Pages entry point
+src/styles/global.css — Shared base styles
+src/test/            — Vitest coverage (logic smoke tests + legacy checks)
 ```
 
 ---
 
 ## How to Add a Project
 
-Edit `src/data/projects.ts`. Add a new object to the `PROJECTS` array:
+Edit `game.js`. Add a new object to the `PROJECTS` array:
 
 ```ts
 {
@@ -119,7 +89,7 @@ The trait IDs must be lowercase hyphenated strings. Use the same IDs that appear
 
 ## How to Add or Edit a Sample Fund
 
-Edit `src/data/funds.ts`. Add a new object to the `FUNDS` array:
+Edit `game.js`. Add a new object to the `FUNDS` array:
 
 ```ts
 {
@@ -144,7 +114,7 @@ Edit `src/data/funds.ts`. Add a new object to the `FUNDS` array:
 
 ## How to Change Simulated Match Rules
 
-Edit `src/data/rules.ts`:
+Edit `game.js`:
 
 ```ts
 export const RULES = {
@@ -168,7 +138,7 @@ Do not hardcode live Fund balances, Match Multiples, or activation thresholds in
 
 ## How to Add Board Encounters
 
-Edit `src/data/encounters.ts`. Each space needs:
+Edit `game.js`. Each space needs:
 
 ```ts
 {
@@ -212,7 +182,7 @@ The Match Garden targets WCAG 2.2 AA:
 Artizen's program mechanics change. Therefore:
 
 - No live Fund balances, Match Multiples, review times, or opening statuses are hardcoded
-- All changeable rules and amounts are in `src/data/rules.ts`
+- All changeable rules and amounts are in `game.js`
 - Every simulated amount is labeled `(simulated)`
 - Every Fund card includes a disclaimer note
 - The `RULES.lastReviewed` field should be updated whenever content is reviewed
