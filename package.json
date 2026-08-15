@@ -4,10 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "python3 -m http.server 4173",
+    "build": "echo 'No build step required'",
     "lint": "oxlint",
-    "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
   },
