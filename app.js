@@ -653,6 +653,7 @@ function render() {
     <div><h1 class="app-title">🌱 The Match Garden</h1><p class="app-subtitle">Discover where your project can genuinely grow.</p></div>
     <div class="row">
       ${state.phase !== 'welcome' && state.phase !== 'choose-project' ? `<span class="growth-points" aria-label="${state.growthPoints} Growth Points">🌿 ${state.growthPoints} GP</span>` : ''}
+      ${state.phase !== 'welcome' ? '<button class="btn btn-secondary" data-action="go-home">⌂ Home</button>' : ''}
       <button class="btn btn-secondary" data-action="toggle-help">${showHelp ? '✕ Help' : '? Help'}</button>
       <button class="btn btn-secondary" data-action="toggle-motion">${state.reducedMotion ? '⚡ Less' : '🎬 Animate'}</button>
     </div>
@@ -681,6 +682,19 @@ function onClick(event) {
 
   if (action === 'toggle-help') {
     showHelp = !showHelp;
+    render();
+    return;
+  }
+
+  if (action === 'go-home') {
+    clearSavedGame();
+    selectedStrategy = null;
+    pitchDrafts = {};
+    guideView = false;
+    boardZoomMode = 'follow';
+    boardPan = { x: 0, y: 0 };
+    showHelp = false;
+    state = createInitialState(Date.now());
     render();
     return;
   }

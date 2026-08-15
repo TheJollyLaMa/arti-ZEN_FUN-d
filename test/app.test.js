@@ -38,6 +38,13 @@ describe('game shell interactions', () => {
     );
 
     expect(document.querySelector('.board-shell')?.classList.contains('is-expanded')).toBe(true);
+
+    document.querySelector('[data-action="go-home"]')?.dispatchEvent(
+      new MouseEvent('click', { bubbles: true }),
+    );
+
+    expect(document.body.textContent).toContain('Welcome to The Match Garden');
+    expect(document.querySelector('[data-action="go-home"]')).toBeNull();
   });
 
   it('offers a back-to-the-beginning reset when no Funds are curated', async () => {

@@ -37,15 +37,13 @@
 }
 
 .board-shell--immersive {
-  width: 100vw;
-  margin-inline: calc(50% - 50vw);
-  border-inline: 0;
-  border-radius: 0;
+  width: calc(100vw - 1rem);
+  margin-inline: calc(50% - 50vw + 0.5rem);
 }
 
 .board-shell--immersive .board-view__viewport {
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: calc(100vh - 1rem);
+  min-height: calc(100dvh - 1rem);
 }
 
 .board-shell__legend {
