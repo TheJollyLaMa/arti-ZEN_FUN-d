@@ -424,7 +424,7 @@ function renderPlaying() {
         <h2>Space ${state.currentSpace} / ${state.totalSpaces}</h2>
         <p>Seed: <strong>${escapeHtml(currentProject?.name ?? '')}</strong></p>
       </div>
-      <button class="btn btn-secondary" data-action="toggle-guide-view">${guideView ? '🗺️ Switch to Path' : '📋 Switch to Guide'}</button>
+      <button class="btn btn-secondary" data-action="toggle-list-view">${guideView ? '🗺️ Switch to Path' : '📋 Switch to Guide'}</button>
     </div>
     <div class="board-shell ${guideView ? 'is-expanded' : 'is-compact'}">
       <div class="board-shell__legend">
@@ -561,7 +561,7 @@ function onClick(event) {
     return;
   }
 
-  if (action === 'toggle-guide-view') {
+  if (action === 'toggle-guide-view' || action === 'toggle-list-view') {
     guideView = !guideView;
     render();
     return;
