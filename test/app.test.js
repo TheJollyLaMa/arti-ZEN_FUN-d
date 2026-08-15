@@ -24,6 +24,7 @@ describe('game shell interactions', () => {
 
     expect(document.body.textContent).toContain('Space 0 / 30');
     expect(document.querySelector('.board-shell')?.classList.contains('is-compact')).toBe(true);
+    expect(document.querySelector('.board-shell')?.classList.contains('board-shell--immersive')).toBe(true);
     expect(document.querySelector('.board-view__legend')?.textContent).toContain('Centered on your current place');
 
     document.querySelector('[data-action="board-zoom-in"]')?.dispatchEvent(

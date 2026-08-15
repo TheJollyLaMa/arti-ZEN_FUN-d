@@ -597,7 +597,7 @@ function renderPlaying() {
         <p>Seed: <strong>${escapeHtml(currentProject?.name ?? '')}</strong></p>
       </div>
     </div>
-    <div class="board-shell ${guideView ? 'is-expanded' : 'is-compact'}">
+    <div class="board-shell board-shell--immersive ${guideView ? 'is-expanded' : 'is-compact'}">
       ${renderBoard()}
     </div>
     ${renderEncounter()}

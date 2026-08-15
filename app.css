@@ -36,6 +36,18 @@
   padding: 1rem;
 }
 
+.board-shell--immersive {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  border-inline: 0;
+  border-radius: 0;
+}
+
+.board-shell--immersive .board-view__viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 .board-shell__legend {
   display: flex;
   justify-content: space-between;
