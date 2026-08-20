@@ -17,7 +17,7 @@ describe('vanilla game module', () => {
     expect(createInitialState().phase).toBe('welcome');
   });
 
-  it('computes a strong fit for the green tea project and community spaces fund', () => {
+  it('computes a strong fit for Agartha.One and the experimental living fund', () => {
     const result = calculateFit(PROJECTS[0], FUNDS[0]);
     expect(result.level).toBe('strong');
   });

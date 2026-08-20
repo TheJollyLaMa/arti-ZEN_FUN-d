@@ -1,6 +1,10 @@
+import { ARTIZEN_PUBLIC_DATA } from './public-artizen-data.js';
+
 export const RULES = {
-  lastReviewed: '2026-08-15',
-  simulated: true,
+  lastReviewed: ARTIZEN_PUBLIC_DATA.lastReviewed,
+  simulated: false,
+  publicDataLabel: ARTIZEN_PUBLIC_DATA.label,
+  publicDataSource: ARTIZEN_PUBLIC_DATA.source,
   defaultMatchMultiple: 3,
   exampleSaleAmounts: [1, 5, 10, 25, 50],
   totalSpaces: 30,
@@ -12,164 +16,14 @@ export const RULES = {
     apply: 'https://artizen.fund/apply',
   },
   disclaimer:
-    'This is an educational simulation. All Funds, balances, match amounts, eligibility requirements, and outcomes shown in this game are fictional examples. Verify current information at artizen.fund before taking any action.',
+    'This is an independent educational game using public Artizen leaderboard snapshots. The project/fund names and match pools come from public records; curation outcomes are simplified for learning. Verify current information at artizen.fund before taking any action.',
   verifyDisclaimer:
-    'Check artizen.fund for current Fund balances, eligibility requirements, and Match Multiples before applying.',
+    'Check artizen.fund for current fund balances, eligibility requirements, and match multiples before applying.',
 };
 
-export const PROJECTS = [
-  {
-    id: 'green-tea',
-    name: 'Green Tea Gathering Space',
-    description:
-      'A neighborhood space combining tea ceremony, ecological practice, art, and recurring community gatherings.',
-    traits: [
-      'physical-space',
-      'community-building',
-      'ecological',
-      'wellness',
-      'arts-culture',
-    ],
-  },
-  {
-    id: 'streetwave-radio',
-    name: 'Streetwave Community Radio',
-    description:
-      'A community radio, live music, busking, and neighborhood storytelling project.',
-    traits: [
-      'community-radio',
-      'public-performance',
-      'local-storytelling',
-      'music',
-      'accessible-culture',
-    ],
-  },
-  {
-    id: 'solar-commons',
-    name: 'Solar Commons Lab',
-    description:
-      'An experimental creative technology project exploring community-owned solar tools and climate education.',
-    traits: [
-      'climate-tech',
-      'education',
-      'open-knowledge',
-      'community-ownership',
-      'experimental-design',
-    ],
-  },
-];
+export const PROJECTS = ARTIZEN_PUBLIC_DATA.projects;
 
-export const FUNDS = [
-  {
-    id: 'community-spaces',
-    name: 'The Community Spaces Fund',
-    mission:
-      'Supports recurring physical spaces that strengthen local communities through gathering, shared practice, and accessible programming.',
-    eligibilityRequirements: [
-      'Must operate a recurring physical gathering space',
-      'Must serve a defined local or regional community',
-      'Must have at least one completed public event',
-    ],
-    preferredTraits: [
-      'physical-space',
-      'community-building',
-      'arts-culture',
-      'wellness',
-    ],
-    excludedTraits: ['digital-only', 'extractive-land-use'],
-    applicationStatus: 'open',
-    sampleAvailableMatch: '$2,000 (simulated)',
-    note: '⚠️ Simulated example. Verify all details at artizen.fund before applying.',
-  },
-  {
-    id: 'creative-wellness',
-    name: 'The Creative Wellness Fund',
-    mission:
-      'Supports projects at the intersection of creative practice and personal or community wellbeing.',
-    eligibilityRequirements: [
-      'Must demonstrate a clear wellness component',
-      'Must involve creative or artistic practice',
-      'Must be accessible to participants regardless of income',
-    ],
-    preferredTraits: [
-      'wellness',
-      'arts-culture',
-      'community-building',
-      'accessible-culture',
-      'ecological',
-    ],
-    excludedTraits: ['for-profit-primary', 'clinical-only'],
-    applicationStatus: 'open',
-    sampleAvailableMatch: '$1,500 (simulated)',
-    note: '⚠️ Simulated example. Verify all details at artizen.fund before applying.',
-  },
-  {
-    id: 'community-radio',
-    name: 'The Community Radio Fund',
-    mission:
-      'Supports grassroots audio, radio, podcasting, and neighborhood storytelling projects that center underrepresented voices.',
-    eligibilityRequirements: [
-      'Must produce audio or broadcast content',
-      'Must center community voices, not commercial content',
-      'Must be accessible to the public',
-    ],
-    preferredTraits: [
-      'community-radio',
-      'local-storytelling',
-      'music',
-      'accessible-culture',
-      'public-performance',
-    ],
-    excludedTraits: ['commercial-broadcast', 'paywall-only'],
-    applicationStatus: 'open',
-    sampleAvailableMatch: '$1,800 (simulated)',
-    note: '⚠️ Simulated example. Verify all details at artizen.fund before applying.',
-  },
-  {
-    id: 'solidarity-economy',
-    name: 'The Solidarity Economy Fund',
-    mission:
-      'Supports projects that model cooperative, community-owned, or solidarity-based economic structures.',
-    eligibilityRequirements: [
-      'Must demonstrate a community-ownership or cooperative structure',
-      'Must prioritize equitable access over profit',
-      'Must involve economic education or practice',
-    ],
-    preferredTraits: [
-      'community-ownership',
-      'open-knowledge',
-      'community-building',
-      'accessible-culture',
-      'education',
-    ],
-    excludedTraits: ['investor-primary', 'extractive-finance'],
-    applicationStatus: 'rolling',
-    sampleAvailableMatch: '$2,500 (simulated)',
-    note: '⚠️ Simulated example. Verify all details at artizen.fund before applying.',
-  },
-  {
-    id: 'climate-tech',
-    name: 'The Climate Technology Fund',
-    mission:
-      'Supports experimental projects combining technology, creative practice, and climate action or education.',
-    eligibilityRequirements: [
-      'Must address climate change, ecological resilience, or sustainability',
-      'Must involve a technology or design component',
-      'Must prioritize education or open access',
-    ],
-    preferredTraits: [
-      'climate-tech',
-      'education',
-      'open-knowledge',
-      'experimental-design',
-      'community-ownership',
-    ],
-    excludedTraits: ['extractive-resource', 'fossil-fuel-adjacent'],
-    applicationStatus: 'open',
-    sampleAvailableMatch: '$3,000 (simulated)',
-    note: '⚠️ Simulated example. Verify all details at artizen.fund before applying.',
-  },
-];
+export const FUNDS = ARTIZEN_PUBLIC_DATA.funds;
 
 export const PITCH_PHRASES = [
   { id: 'what-1', category: 'what', text: 'Our project creates a recurring gathering space for community members.', isSpecific: true },
@@ -211,10 +65,10 @@ export const BOARD_SPACES = [
   ] },
   { id: 6, type: 'wild-bloom', zone: 'plant', title: 'A Bee Visits!', content: 'A bee lands on your seed packet. You notice a helpful signpost nearby. Gain 5 Growth Points for being observant.' },
   { id: 7, type: 'path', zone: 'explore', title: 'The Fund Directory', content: 'Artizen Funds are maintained by Fund Directors — curators who have set eligibility criteria for projects aligned with their mission.' },
-  { id: 8, type: 'soil-test', zone: 'explore', title: 'Reading the Soil', content: 'The Community Spaces Fund supports recurring physical spaces that strengthen local communities. Imagine your project hosts monthly open gatherings. Is this a strong match?', options: [
-    { id: 'strong', text: 'Strong connection — this is exactly what the Fund supports.', isOptimal: true, feedback: 'Correct! Recurring physical community gatherings are a clear fit for the Community Spaces Fund.', pointsEffect: 15 },
-    { id: 'possible', text: 'Possible, but unclear without more information.', isOptimal: false, feedback: 'There\'s actually strong alignment here. Monthly open gatherings in a physical space are precisely what this Fund supports.', pointsEffect: 5 },
-    { id: 'weak', text: 'Weak connection — the Fund probably wants something else.', isOptimal: false, feedback: 'Not quite. Recurring physical community gatherings are a strong match for the Community Spaces Fund.', pointsEffect: 0 },
+  { id: 8, type: 'soil-test', zone: 'explore', title: 'Reading the Soil', content: 'The Edge City Fund for Experimental Living supports popup-village coordination and real-world community experiments. Imagine your project hosts monthly open gatherings. Is this a strong match?', options: [
+    { id: 'strong', text: 'Strong connection — this is exactly what the Fund supports.', isOptimal: true, feedback: 'Correct! Recurring community gatherings are a clear fit for the Edge City Fund for Experimental Living.', pointsEffect: 15 },
+    { id: 'possible', text: 'Possible, but unclear without more information.', isOptimal: false, feedback: 'There\'s actually strong alignment here. Monthly open gatherings in a community setting are exactly the kind of work this Fund supports.', pointsEffect: 5 },
+    { id: 'weak', text: 'Weak connection — the Fund probably wants something else.', isOptimal: false, feedback: 'Not quite. Recurring community gatherings are a strong match for the Edge City Fund for Experimental Living.', pointsEffect: 0 },
   ] },
   { id: 9, type: 'root', zone: 'explore', title: 'The Generic Pitch Root', content: 'You sent the same application to every Fund without tailoring it. Follow the root back two spaces.', rootSetback: 2 },
   { id: 10, type: 'path', zone: 'explore', title: 'Fund Directors Are Humans', content: 'Fund Directors make curation decisions. They are humans with a mission, not an algorithm. A rejection is information about fit, not a verdict on your project\'s worth.' },
@@ -225,9 +79,9 @@ export const BOARD_SPACES = [
   ] },
   { id: 12, type: 'trellis', zone: 'explore', title: 'The Trellis of Specificity', content: 'You connected a specific project example to a Fund\'s mission. Climb the trellis three spaces!', trellisAdvance: 3 },
   { id: 13, type: 'path', zone: 'cultivate', title: 'The Cultivation Table', content: 'Evaluating fit means honestly comparing your project\'s traits against a Fund\'s requirements. Strong fit means genuine alignment — not wishful thinking.' },
-  { id: 14, type: 'soil-test', zone: 'cultivate', title: 'Exclusion Zones', content: 'The Climate Technology Fund excludes extractive-resource projects. A project selling fossil fuel data would be excluded. What about a project teaching solar energy to youth?', options: [
-    { id: 'excluded', text: 'It would probably be excluded — anything energy-related is risky.', isOptimal: false, feedback: 'Not quite. Teaching solar energy is aligned with the Fund\'s mission. Exclusions target harmful practices, not the topic itself.', pointsEffect: 0 },
-    { id: 'strong-fit', text: 'It\'s a strong fit — the Fund supports climate education.', isOptimal: true, feedback: 'Exactly right! Climate education for youth is a clear fit. Exclusions exist to block misalignment, not to exclude related topics.', pointsEffect: 15 },
+  { id: 14, type: 'soil-test', zone: 'cultivate', title: 'Exclusion Zones', content: 'The Open Source Science Fund excludes proprietary-only and paywall-only projects. A project selling fossil fuel data behind a paywall would be excluded. What about a project teaching solar energy to youth?', options: [
+    { id: 'excluded', text: 'It would probably be excluded — anything energy-related is risky.', isOptimal: false, feedback: 'Not quite. Teaching solar energy is aligned with the Fund\'s mission. Exclusions target harmful or closed practices, not the topic itself.', pointsEffect: 0 },
+    { id: 'strong-fit', text: 'It\'s a strong fit — the Fund supports open science and education.', isOptimal: true, feedback: 'Exactly right! Open, public education on solar energy is a clear fit. Exclusions exist to block closed or extractive practices, not to exclude related topics.', pointsEffect: 15 },
   ] },
   { id: 15, type: 'reflection', zone: 'cultivate', title: 'Which Fund Feels Right?', content: 'Looking at the Funds you\'ve learned about, which one feels like the most genuine fit for a project like yours? What is the clearest connection?', reflectionKey: 'best-fund-fit' },
   { id: 16, type: 'decision', zone: 'cultivate', title: 'The Application Moment', content: 'You\'re assembling a pitch for a Fund. You notice one eligibility requirement that your project doesn\'t quite meet. What do you do?', options: [
@@ -254,12 +108,12 @@ export const BOARD_SPACES = [
     { id: 'nothing', text: 'Do nothing and hope supporters find it on their own.', isOptimal: false, feedback: 'Passive waiting rarely works. Steady, honest outreach increases the chance of unlocking available match.', pointsEffect: 0 },
   ] },
   { id: 27, type: 'path', zone: 'bloom', title: 'Match Is Not Automatic', content: 'Available match is held in a Fund. It is not automatically transferred. Creator activity, supporter purchases, and Fund Drive timing all affect how much match is unlocked.' },
-  { id: 28, type: 'soil-test', zone: 'bloom', title: 'Calculate the Bloom', content: 'A supporter buys a $10 Artifact. The Match Multiple is 3x. How much total is raised for the project?', options: [
+  { id: 28, type: 'soil-test', zone: 'bloom', title: 'Calculate the Bloom', content: 'A supporter buys a $10 Artifact in the Edge City Fund for Experimental Living. The Match Multiple is 5x. How much total is raised for the project?', options: [
     { id: 'ten', text: '$10 — just the sale amount.', isOptimal: false, feedback: 'The $10 sale is only part of the total. The match multiplies supporter purchases.', pointsEffect: 0 },
-    { id: 'thirty', text: '$30 — only the match portion.', isOptimal: false, feedback: 'Close! The match is $30 ($10 × 3), but the total raised includes both the sale and the match.', pointsEffect: 5 },
-    { id: 'forty', text: '$40 — the $10 sale plus $30 in unlocked match.', isOptimal: true, feedback: 'Correct! Total raised = sale + match = $10 + $30 = $40. (All amounts are simulated examples.)', pointsEffect: 30 },
+    { id: 'fifty', text: '$50 — only the match portion.', isOptimal: false, feedback: 'Close! The match is $50 ($10 × 5), but the total raised includes both the sale and the match.', pointsEffect: 5 },
+    { id: 'sixty', text: '$60 — the $10 sale plus $50 in unlocked match.', isOptimal: true, feedback: 'Correct! Total raised = sale + match = $10 + $50 = $60. This uses the public 5x snapshot.', pointsEffect: 30 },
   ] },
-  { id: 29, type: 'garden-guide', zone: 'bloom', title: 'Venus on Blooming', content: 'Venus says: "Blooming doesn\'t mean your project is finished — it means the community has seen your roots and decided to help you grow. That\'s the beginning, not the end."', guideMessage: 'Remember: match numbers in this game are examples. Always check artizen.fund for current rules, balances, and timelines before making decisions.' },
+  { id: 29, type: 'garden-guide', zone: 'bloom', title: 'Venus on Blooming', content: 'Venus says: "Blooming doesn\'t mean your project is finished — it means the community has seen your roots and decided to help you grow. That\'s the beginning, not the end."', guideMessage: 'Remember: match numbers in this game come from public snapshots. Always check artizen.fund for current rules, balances, and timelines before making decisions.' },
   { id: 30, type: 'reflection', zone: 'bloom', title: 'The Harvest Table', content: 'You\'ve reached the harvest table! Before receiving your Garden Plan, reflect: what is the most important thing you\'ve learned about finding the right Fund for your project?', reflectionKey: 'key-learning' },
 ];
 

@@ -1,8 +1,8 @@
 # 🌱 The Match Garden
 
-An independent, educational mini-game that helps creators understand Artizen Funds, decide which Funds fit their projects, prepare stronger applications, and understand what happens after curation.
+An independent, educational mini-game that helps creators understand Artizen Funds, decide which Funds fit their projects, prepare stronger applications, and understand what happens after curation. The current game state uses a public Artizen leaderboard snapshot as its source of truth.
 
-> **This is an independent project. It is not affiliated with, endorsed by, or sponsored by Artizen. All Fund information, balances, match amounts, and outcomes shown in the game are fictional examples for educational purposes only. Verify current information at [artizen.fund](https://artizen.fund) before taking action.**
+> **This is an independent project. It is not affiliated with, endorsed by, or sponsored by Artizen. The project/fund names and match pools shown in the game come from public Artizen snapshots; curation outcomes are simplified for learning. Verify current information at [artizen.fund](https://artizen.fund) before taking action.**
 
 ---
 
@@ -90,7 +90,7 @@ The trait IDs must be lowercase hyphenated strings. Use the same IDs that appear
 
 ## How to Add or Edit a Sample Fund
 
-Edit `game.js`. Add a new object to the `FUNDS` array:
+Edit `public-artizen-data.js`. Add a new object to the `FUNDS` array:
 
 ```ts
 {
@@ -104,23 +104,26 @@ Edit `game.js`. Add a new object to the `FUNDS` array:
   preferredTraits: ['trait-a', 'trait-b', 'trait-c'],
   excludedTraits: ['bad-trait'],
   applicationStatus: 'open',   // 'open' | 'closed' | 'rolling'
-  sampleAvailableMatch: '$1,000 (simulated)',
-  note: '⚠️ Simulated example. Verify all details at artizen.fund before applying.',
+  matchAvailable: 1000,
+  matchTotal: 2500,
+  matchMultiple: 3,
+  sampleAvailableMatch: '$1,000 remaining of $2,500',
+  note: 'Public Artizen snapshot. Verify all details at artizen.fund before applying.',
 }
 ```
 
-⚠️ **All Funds must include the simulated disclaimer note.** Do not represent fictional Fund data as current or real.
+⚠️ **All Funds should be refreshed from public Artizen data before shipping.** Keep the snapshot note so players know the game is educational.
 
 ---
 
-## How to Change Simulated Match Rules
+## How to Change Match Walkthrough Rules
 
 Edit `game.js`:
 
 ```ts
 export const RULES = {
-  lastReviewed: '2026-08-15',   // update when you review content
-  defaultMatchMultiple: 3,       // the simulated match multiplier
+  lastReviewed: '2026-08-20',   // update when you review content
+  defaultMatchMultiple: 3,       // fallback match multiplier for the walkthrough
   exampleSaleAmounts: [1, 5, 10, 25, 50],
   totalSpaces: 30,
   maxPoints: 500,
@@ -133,7 +136,7 @@ export const RULES = {
 };
 ```
 
-Do not hardcode live Fund balances, Match Multiples, or activation thresholds into UI components — always reference `RULES`.
+Do not hardcode public Fund balances, Match Multiples, or activation thresholds into UI components — always reference the snapshot data and `RULES`.
 
 ---
 
@@ -182,13 +185,12 @@ The Match Garden targets WCAG 2.2 AA:
 
 Artizen's program mechanics change. Therefore:
 
-- No live Fund balances, Match Multiples, review times, or opening statuses are hardcoded
-- All changeable rules and amounts are in `game.js`
-- Every simulated amount is labeled `(simulated)`
-- Every Fund card includes a disclaimer note
+- Public project and fund snapshots live in `public-artizen-data.js`
+- Changeable rules and educational copy live in `game.js` and `app.js`
+- Every Fund card includes a public-snapshot note
 - The `RULES.lastReviewed` field should be updated whenever content is reviewed
 - Players are reminded to verify information at artizen.fund before taking action
-- This game does not call the Artizen API or scrape any live data
+- This game does not call the Artizen API or scrape any live data at runtime
 - This game does not use Artizen logos or proprietary artwork
 
 ---
@@ -210,7 +212,7 @@ If you include external assets, ensure they are properly licensed and attributed
 
 ## Independent-Project Disclaimer
 
-The Match Garden is an **independent** educational game created by contributors to this repository. It is **not** affiliated with, endorsed by, produced by, or sponsored by Artizen or its team. The fictional Funds, match amounts, outcomes, and processes shown in this game are invented for learning purposes only.
+The Match Garden is an **independent** educational game created by contributors to this repository. It is **not** affiliated with, endorsed by, produced by, or sponsored by Artizen or its team. The game uses public Artizen snapshots for the project and fund examples, while the match walkthrough remains educational.
 
 Always verify current information at [artizen.fund](https://artizen.fund) before making real decisions about applying to Funds, submitting projects, or participating in Fund Drives.
 
