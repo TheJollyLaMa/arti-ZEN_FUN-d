@@ -402,6 +402,23 @@ function renderProjectPicker() {
   </section>`;
 }
 
+function renderPublicSnapshotSpotlight() {
+  const featuredProject = PROJECTS.find((project) => project.id === RULES.featuredProjectId);
+  const featuredFund = FUNDS.find((fund) => fund.id === RULES.featuredFundId);
+
+  if (!featuredProject || !featuredFund) return '';
+
+  return `<section class="card">
+    <h3>Featured public snapshot</h3>
+    <p><strong>${escapeHtml(RULES.publicDataLabel)}</strong> from ${escapeHtml(RULES.publicDataSource)}.</p>
+    <ul class="stats">
+      <li><strong>Project:</strong> ${escapeHtml(featuredProject.name)} — ${formatMoney(featuredProject.funding)} funded, ${featuredProject.votes.toLocaleString()} votes</li>
+      <li><strong>Fund:</strong> ${escapeHtml(featuredFund.name)} — ${escapeHtml(formatMatchSummary(featuredFund))}</li>
+      <li><strong>Reviewed:</strong> ${escapeHtml(RULES.lastReviewed)}</li>
+    </ul>
+  </section>`;
+}
+
 function renderFunds() {
   return `<section class="stack">
     <div class="section-heading">
@@ -638,6 +655,7 @@ function renderWelcome() {
         <button class="btn btn-secondary" data-action="toggle-help">🌿 How Funds Work</button>
       </div>
     </div>
+    ${renderPublicSnapshotSpotlight()}
     <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.publicDataLabel)} — ${escapeHtml(RULES.disclaimer)}</span></div>
   </section>`;
 }

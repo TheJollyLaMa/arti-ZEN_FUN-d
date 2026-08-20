@@ -5,6 +5,8 @@ export const RULES = {
   simulated: false,
   publicDataLabel: ARTIZEN_PUBLIC_DATA.label,
   publicDataSource: ARTIZEN_PUBLIC_DATA.source,
+  featuredProjectId: 'agartha-one',
+  featuredFundId: 'edge-city-experimental-living',
   defaultMatchMultiple: 3,
   exampleSaleAmounts: [1, 5, 10, 25, 50],
   totalSpaces: 30,
