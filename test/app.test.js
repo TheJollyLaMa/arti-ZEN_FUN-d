@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { PROJECTS, RULES } from '../game.js';
 
 describe('game shell interactions', () => {
   beforeEach(() => {
@@ -11,6 +12,11 @@ describe('game shell interactions', () => {
 
   it('supports the full click-through flow with the legacy board toggle action', async () => {
     await import('../app.js');
+    const featuredProject = PROJECTS.find((project) => project.id === RULES.featuredProjectId);
+
+    expect(document.body.textContent).toContain('Featured public snapshot');
+    expect(featuredProject).toBeDefined();
+    expect(document.body.textContent).toContain(featuredProject.name);
 
     document.querySelector('[data-action="start-game"]')?.dispatchEvent(
       new MouseEvent('click', { bubbles: true }),

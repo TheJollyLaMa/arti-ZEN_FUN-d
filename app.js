@@ -120,6 +120,20 @@ function formatMoney(value) {
   return `$${value.toLocaleString()}`;
 }
 
+function formatMatchSummary(fund) {
+  if (
+    typeof fund?.matchAvailable === 'number' &&
+    typeof fund?.matchTotal === 'number' &&
+    fund.matchAvailable >= 0 &&
+    fund.matchTotal > 0
+  ) {
+    const multiplier = typeof fund.matchMultiple === 'number' ? `${fund.matchMultiple}x` : 'match';
+    return `${formatMoney(fund.matchAvailable)} available of ${formatMoney(fund.matchTotal)} at ${multiplier}`;
+  }
+
+  return fund?.sampleAvailableMatch ?? 'Public Artizen snapshot';
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -388,6 +402,23 @@ function renderProjectPicker() {
   </section>`;
 }
 
+function renderPublicSnapshotSpotlight() {
+  const featuredProject = PROJECTS.find((project) => project.id === RULES.featuredProjectId);
+  const featuredFund = FUNDS.find((fund) => fund.id === RULES.featuredFundId);
+
+  if (!featuredProject || !featuredFund) return '';
+
+  return `<section class="card">
+    <h3>Featured public snapshot</h3>
+    <p><strong>${escapeHtml(RULES.publicDataLabel)}</strong> from ${escapeHtml(RULES.publicDataSource)}.</p>
+    <ul class="stats">
+      <li><strong>Project:</strong> ${escapeHtml(featuredProject.name)} — ${formatMoney(featuredProject.funding)} funded, ${featuredProject.votes.toLocaleString()} votes</li>
+      <li><strong>Fund:</strong> ${escapeHtml(featuredFund.name)} — ${escapeHtml(formatMatchSummary(featuredFund))}</li>
+      <li><strong>Reviewed:</strong> ${escapeHtml(RULES.lastReviewed)}</li>
+    </ul>
+  </section>`;
+}
+
 function renderFunds() {
   return `<section class="stack">
     <div class="section-heading">
@@ -397,7 +428,7 @@ function renderFunds() {
       </div>
       <button class="btn btn-secondary" data-action="go-build-pitch">Build Applications →</button>
     </div>
-    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.verifyDisclaimer)}</span></div>
+    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.publicDataLabel)} — ${escapeHtml(RULES.verifyDisclaimer)}</span></div>
     <div class="funds-grid">
       ${FUNDS.map((fund) => {
         const fit = state.fitResults.find((result) => result.fundId === fund.id);
@@ -412,7 +443,7 @@ function renderFunds() {
           </div>
           <p>${escapeHtml(fund.mission)}</p>
           <ul class="fund-list">${fund.eligibilityRequirements.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-          <p><strong>Match:</strong> ${escapeHtml(fund.sampleAvailableMatch)}</p>
+          <p><strong>Match:</strong> ${escapeHtml(formatMatchSummary(fund))}</p>
           ${fit ? `<p class="fit-explanation">${escapeHtml(fit.explanation)}</p>` : ''}
           <div class="row">
             <button class="btn btn-primary" data-action="select-fund" data-fund-id="${escapeHtml(fund.id)}" ${selected || skipped ? 'disabled' : ''}>Select</button>
@@ -481,8 +512,8 @@ function renderPitchBuilder() {
 function renderCuration() {
   const curatedFunds = state.curationResults.filter((result) => result.outcome === 'curated');
   return `<section class="stack">
-    <h2>Simulated Curation Results 🌸</h2>
-    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>Simulated for learning only — not real Director decisions.</span></div>
+    <h2>Curation Results 🌸</h2>
+    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.publicDataLabel)} — curation outcomes are still educational and may differ from live Artizen decisions.</span></div>
     ${state.curationResults.map((result) => {
       const fund = FUNDS.find((item) => item.id === result.fundId);
       if (!fund) return '';
@@ -514,7 +545,7 @@ function renderFundDrive() {
 
   if (curatedFunds.length === 0) {
     return `<section class="stack">
-      <h2>Fund Drive Simulation 🌻</h2>
+      <h2>Fund Drive Walkthrough 🌻</h2>
       <div class="card">
         <p>No Funds were curated this round. Do not pass go, do not collect $200.</p>
         <p>You can head back to the start and try a stronger fit.</p>
@@ -524,8 +555,8 @@ function renderFundDrive() {
   }
 
   return `<section class="stack">
-    <h2>Fund Drive Simulation 🌻</h2>
-    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>All amounts below are teaching examples. Match Multiple: <strong>${RULES.defaultMatchMultiple}x</strong> (simulated). ${escapeHtml(RULES.verifyDisclaimer)}</span></div>
+    <h2>Fund Drive Walkthrough 🌻</h2>
+    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.publicDataLabel)} — match pools and multipliers come from the public snapshot. ${escapeHtml(RULES.verifyDisclaimer)}</span></div>
     <p>Choose a supporter engagement strategy:</p>
     <div class="strategy-group" role="radiogroup" aria-label="Supporter strategy">
       ${strategyButtons.map((strategy) => `<button class="strategy ${selectedStrategy === strategy.id ? 'is-selected' : ''}" data-action="set-strategy" data-strategy="${strategy.id}">
@@ -533,20 +564,20 @@ function renderFundDrive() {
         <span>${escapeHtml(strategy.description)}</span>
       </button>`).join('')}
     </div>
-    <button class="btn btn-primary" data-action="run-fund-drive" ${selectedStrategy ? '' : 'disabled'}>Run Simulation 🌱</button>
+    <button class="btn btn-primary" data-action="run-fund-drive" ${selectedStrategy ? '' : 'disabled'}>Run Walkthrough 🌱</button>
     ${state.fundDriveResults.length > 0 ? `<div class="fund-drive-results">
-      <div class="card">${escapeHtml(strategyFeedback[selectedStrategy] ?? 'Simulation complete.')}</div>
+      <div class="card">${escapeHtml(strategyFeedback[selectedStrategy] ?? 'Walkthrough complete.')}</div>
       ${state.fundDriveResults.map((result) => {
         const fund = FUNDS.find((item) => item.id === result.fundId);
         return `<article class="card">
           <h3>${escapeHtml(fund?.name ?? 'Fund')}</h3>
           <dl class="stats">
             <div><dt>Match Multiple</dt><dd>${result.matchMultiple}x</dd></div>
-            <div><dt>Artifact Sales</dt><dd>${formatMoney(result.artifactSales)} (simulated)</dd></div>
-            <div><dt>Match Available</dt><dd>${formatMoney(result.matchAvailable)} (simulated)</dd></div>
-            <div><dt>Match Unlocked</dt><dd>${formatMoney(result.matchUnlocked)} (simulated)</dd></div>
-            <div><dt>Match Remaining</dt><dd>${formatMoney(result.matchRemaining)} (simulated)</dd></div>
-            <div><dt>Total Raised</dt><dd>${formatMoney(result.totalRaised)} (simulated)</dd></div>
+            <div><dt>Artifact Sales</dt><dd>${formatMoney(result.artifactSales)}</dd></div>
+            <div><dt>Match Available</dt><dd>${formatMoney(result.matchAvailable)}</dd></div>
+            <div><dt>Match Unlocked</dt><dd>${formatMoney(result.matchUnlocked)}</dd></div>
+            <div><dt>Match Remaining</dt><dd>${formatMoney(result.matchRemaining)}</dd></div>
+            <div><dt>Total Raised</dt><dd>${formatMoney(result.totalRaised)}</dd></div>
           </dl>
           ${result.matchRemaining === 0 ? '<p role="status">🌻 All available match unlocked! +200 Growth Points!</p>' : ''}
         </article>`;
@@ -624,7 +655,8 @@ function renderWelcome() {
         <button class="btn btn-secondary" data-action="toggle-help">🌿 How Funds Work</button>
       </div>
     </div>
-    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.disclaimer)}</span></div>
+    ${renderPublicSnapshotSpotlight()}
+    <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.publicDataLabel)} — ${escapeHtml(RULES.disclaimer)}</span></div>
   </section>`;
 }
 
@@ -633,16 +665,16 @@ function renderHelp() {
     <div class="container stack">
       <h2>How to Play</h2>
       <ol>
-        <li>Choose a sample project — your seed.</li>
+        <li>Choose a featured public project — your seed.</li>
         <li>Roll and move along 30 living spaces.</li>
         <li>Encounter decisions, soil tests, trellises, and roots.</li>
-        <li>Evaluate sample Funds.</li>
+        <li>Evaluate public Funds.</li>
         <li>Build practice pitches.</li>
-        <li>See simulated curation outcomes.</li>
-        <li>Run a Fund Drive simulation.</li>
+        <li>See educational curation outcomes.</li>
+        <li>Run a Fund Drive walkthrough.</li>
         <li>Receive your Garden Plan.</li>
       </ol>
-      <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.disclaimer)}</span></div>
+      <div class="simulated-notice" role="note"><span aria-hidden="true">⚠️</span><span>${escapeHtml(RULES.publicDataLabel)} — ${escapeHtml(RULES.disclaimer)}</span></div>
     </div>
   </div>`;
 }
@@ -671,7 +703,7 @@ function render() {
   </main>`;
 
   root.className = reduced;
-  root.innerHTML = `${header}${showHelp ? renderHelp() : ''}${main}<footer class="app-footer"><div class="container"><p>The Match Garden — an independent educational game. Not affiliated with Artizen. <a href="${RULES.officialLinks.funds}" target="_blank" rel="noopener noreferrer">Visit artizen.fund ↗</a></p><p class="app-footer__disclaimer">${escapeHtml(RULES.disclaimer)}</p></div></footer>`;
+  root.innerHTML = `${header}${showHelp ? renderHelp() : ''}${main}<footer class="app-footer"><div class="container"><p>The Match Garden — an independent educational game using public Artizen snapshots. Not affiliated with Artizen. <a href="${RULES.officialLinks.funds}" target="_blank" rel="noopener noreferrer">Visit artizen.fund ↗</a></p><p class="app-footer__disclaimer">${escapeHtml(RULES.disclaimer)}</p></div></footer>`;
   syncBoardViewport();
 }
 
@@ -860,13 +892,14 @@ function onClick(event) {
     if (!selectedStrategy) return;
     const curatedFunds = getCuratedFunds();
     const results = curatedFunds.map((fund) => {
-      const matchAvailable = RULES.simulatedMatchAvailable;
+      const matchAvailable = fund.matchAvailable ?? RULES.simulatedMatchAvailable;
+      const matchMultiple = fund.matchMultiple ?? RULES.defaultMatchMultiple;
       if (selectedStrategy === 'small') {
         let totalMatch = 0;
         let remaining = matchAvailable;
         let totalSales = 0;
         for (let i = 0; i < 5; i++) {
-          const result = calculateMatchUnlocked(10, RULES.defaultMatchMultiple, remaining);
+          const result = calculateMatchUnlocked(10, matchMultiple, remaining);
           totalMatch += result.matchUnlocked;
           remaining = result.matchRemaining;
           totalSales += 10;
@@ -877,7 +910,7 @@ function onClick(event) {
           matchAvailable,
           matchUnlocked: totalMatch,
           matchRemaining: matchAvailable - totalMatch,
-          matchMultiple: RULES.defaultMatchMultiple,
+          matchMultiple,
           totalRaised: totalSales + totalMatch,
         };
       }
@@ -886,7 +919,7 @@ function onClick(event) {
         selectedStrategy === 'large' ? 50 : 0;
       const matchResult = calculateMatchUnlocked(
         saleAmount,
-        RULES.defaultMatchMultiple,
+        matchMultiple,
         matchAvailable,
       );
       return {
@@ -895,7 +928,7 @@ function onClick(event) {
         matchAvailable,
         matchUnlocked: matchResult.matchUnlocked,
         matchRemaining: matchResult.matchRemaining,
-        matchMultiple: RULES.defaultMatchMultiple,
+        matchMultiple,
         totalRaised: matchResult.totalRaised,
       };
     });
@@ -921,7 +954,7 @@ function onClick(event) {
         return `- ${fund?.name ?? result.fundId}: ${result.outcome}`;
       }),
       '',
-      '⚠️ All amounts and outcomes are simulated examples.',
+      '⚠️ Match pools and project names come from public Artizen snapshots; outcomes here are educational walkthroughs.',
       'Verify current information at artizen.fund before taking action.',
     ];
     navigator.clipboard.writeText(lines.join('\n')).catch(() => alert(lines.join('\n')));
